@@ -111,8 +111,6 @@ def main():
             except KeyError:
                 pass
 
-    print(args.pokemon)
-
     # stage 1: filter by stats
     for base, given, ev, nature_mod, stat in zip(args.pokemon[1:], args.stats, args.evs, args.nature, stat_names):
         options[stat] = [iv for iv in range(32)
