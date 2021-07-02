@@ -1,0 +1,26 @@
+#,Name,JP Name,HP,Atk,Def,SpA,SpD,Spe,Favorite Flavor,Disliked Flavor
+0,Hardy,がんばりや,1.0,1,1,1,1,1,—,—
+1,Lonely,さみしがり,1.0,1.1,0.9,1,1,1,Spicy,Sour
+2,Brave,ゆうかん,1.0,1.1,1,1,1,0.9,Spicy,Sweet
+3,Adamant,いじっぱり,1.0,1.1,1,0.9,1,1,Spicy,Dry
+4,Naughty,やんちゃ,1.0,1.1,1,1,0.9,1,Spicy,Bitter
+5,Bold,ずぶとい,1.0,0.9,1.1,1,1,1,Sour,Spicy
+6,Docile,すなお,1.0,1,1,1,1,1,—,—
+7,Relaxed,のんき,1.0,1,1.1,1,1,0.9,Sour,Sweet
+8,Impish,わんぱく,1.0,1,1.1,0.9,1,1,Sour,Dry
+9,Lax,のうてんき,1.0,1,1.1,1,0.9,1,Sour,Bitter
+10,Timid,おくびょう,1.0,0.9,1,1,1,1.1,Sweet,Spicy
+11,Hasty,せっかち,1.0,1,0.9,1,1,1.1,Sweet,Sour
+12,Serious,まじめ,1.0,1,1,1,1,1,—,—
+13,Jolly,ようき,1.0,1,1,0.9,1,1.1,Sweet,Dry
+14,Naive,むじゃき,1.0,1,1,1,0.9,1.1,Sweet,Bitter
+15,Modest,ひかえめ,1.0,0.9,1,1.1,1,1,Dry,Spicy
+16,Mild,おっとり,1.0,1,0.9,1.1,1,1,Dry,Sour
+17,Quiet,れいせい,1.0,1,1,1.1,1,0.9,Dry,Sweet
+18,Bashful,てれや,1.0,1,1,1,1,1,—,—
+19,Rash,うっかりや,1.0,1,1,1.1,0.9,1,Dry,Bitter
+20,Calm,おだやか,1.0,0.9,1,1,1.1,1,Bitter,Spicy
+21,Gentle,おとなしい,1.0,1,0.9,1,1.1,1,Bitter,Sour
+22,Sassy,なまいき,1.0,1,1,1,1.1,0.9,Bitter,Sweet
+23,Careful,しんちょう,1.0,1,1,0.9,1.1,1,Bitter,Dry
+24,Quirky,きまぐれ,1.0,1,1,1,1,1,—,—

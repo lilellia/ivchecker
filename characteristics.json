@@ -1,0 +1,39 @@
+{
+    "Loves to eat": {"stat": "HP", "modulo": 0},
+    "Takes plenty of siestas": {"stat": "HP", "modulo": 1},
+    "Often dozes off": {"stat": "HP", "modulo": 1},
+    "Nods off a lot": {"stat": "HP", "modulo": 2},
+    "Often scatters things": {"stat": "HP", "modulo": 2},
+    "Scatters things often": {"stat": "HP", "modulo": 3},
+    "Likes to relax": {"stat": "HP", "modulo": 4},
+
+    "Proud of its power": {"stat": "Atk", "modulo": 0},
+    "Likes to thrash about": {"stat": "Atk", "modulo": 1},
+    "A little quick tempered": {"stat": "Atk", "modulo": 2},
+    "Likes to fight": {"stat": "Atk", "modulo": 3},
+    "Quick tempered": {"stat": "Atk", "modulo": 4},
+
+    "Sturdy body": {"stat": "Def", "modulo": 0},
+    "Capable of taking hits": {"stat": "Def", "modulo": 1},
+    "Highly persistence": {"stat": "Def", "modulo": 2},
+    "Good endurance": {"stat": "Def", "modulo": 3},
+    "Good perserverance": {"stat": "Def", "modulo": 4},
+
+    "Highly curious": {"stat": "SpA", "modulo": 0},
+    "Mischievous": {"stat": "SpA", "modulo": 1},
+    "Thoroughly cunning": {"stat": "SpA", "modulo": 2},
+    "Often lost in thought": {"stat": "SpA", "modulo": 3},
+    "Very finicky": {"stat": "SpA", "modulo": 4},
+
+    "Strong willed": {"stat": "SpD", "modulo": 0},
+    "Somewhat vain": {"stat": "SpD", "modulo": 1},
+    "Strongly defiant": {"stat": "SpD", "modulo": 2},
+    "Hates to lose": {"stat": "SpD", "modulo": 3},
+    "Somewhat stubborn": {"stat": "SpD", "modulo": 4},
+
+    "Likes to run": {"stat": "Spe", "modulo": 0},
+    "Alert to sounds": {"stat": "Spe", "modulo": 1},
+    "Impetuous and silly": {"stat": "Spe", "modulo": 2},
+    "Somewhat of a clown": {"stat": "Spe", "modulo": 3},
+    "Quick to flee": {"stat": "Spe", "modulo": 4}
+}
