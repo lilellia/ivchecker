@@ -21,6 +21,9 @@ with open(HERE / 'basestats.csv') as f:
     next(reader)
     BASE_STATS = list(reader)
 
+with open(HERE / 'statchanges.json') as f:
+    STAT_CHANGES = json.load(f)
+
 with open(HERE / 'characteristics.json') as f:
     CHARACTERISTICS = json.load(f)
 
@@ -46,7 +49,7 @@ def pokemon(name: str) -> tuple:
     """ Convert the name of a Pokeḿon to a tuple of its base stats. """
     for pkmn, *base_stats in BASE_STATS:
         if pkmn == name.lower():
-            return tuple(int(x) for x in base_stats)
+            return [pkmn] + [int(x) for x in base_stats]
 
     raise argparse.ArgumentError(f'Invalid Pokémon: {name}')
 
@@ -87,22 +90,39 @@ def main():
     parser.add_argument('-n', '--nature', type=nature, required=True)
     parser.add_argument('-e', '--evs', type=int, default=[0, 0, 0, 0, 0, 0], nargs=6)
     parser.add_argument('-g', '--gen', '--generation', type=int, default=8)
-    parser.add_argument('-c', '--char', '--characteristic', dest='characteristic', type=characteristic)
+    parser.add_argument('-c', '--char', '--characteristic', type=characteristic)
     args = parser.parse_args()
 
     stat_names = ['HP', 'Atk', 'Def', 'SpA', 'SpD', 'Spe']
     options = dict.fromkeys(stat_names)
 
+    # stage 0: update base stats according to generation
+    if args.gen < 8 and args.pokemon[0] in STAT_CHANGES.keys():
+        changes = STAT_CHANGES[args.pokemon[0]]
+
+        stats = None
+        for gen in range(5, 8):
+            try:
+                stats = changes[f'Gen {gen}']
+
+                if gen >= args.gen and stats is not None:
+                    args.pokemon[1:] = stats
+                    break
+            except KeyError:
+                pass
+
+    print(args.pokemon)
+
     # stage 1: filter by stats
-    for base, given, ev, nature_mod, stat in zip(args.pokemon, args.stats, args.evs, args.nature, stat_names):
+    for base, given, ev, nature_mod, stat in zip(args.pokemon[1:], args.stats, args.evs, args.nature, stat_names):
         options[stat] = [iv for iv in range(32)
             if calculate_stat(level=args.level, base=base, iv=iv, ev=ev, nature=nature_mod, hp=(stat=='HP')) == given
         ]
 
-    # stage 2: filter by characteristic
-    if args.characteristic:
+    # stage 2: filter by characteristic (as long as there are no errors)
+    if args.char and all(options.values()):
         # use the modulo result to filter the corresponding stat
-        stat, mod = args.characteristic
+        stat, mod = args.char
         options[stat] = [iv for iv in options[stat] if iv % 5 == mod]
 
         # and we also know that no other IV can exceed this one
