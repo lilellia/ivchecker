@@ -15,7 +15,7 @@
 
     "Sturdy body": {"stat": "Def", "modulo": 0},
     "Capable of taking hits": {"stat": "Def", "modulo": 1},
-    "Highly persistence": {"stat": "Def", "modulo": 2},
+    "Highly persistent": {"stat": "Def", "modulo": 2},
     "Good endurance": {"stat": "Def", "modulo": 3},
     "Good perserverance": {"stat": "Def", "modulo": 4},
 
