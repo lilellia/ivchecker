@@ -91,6 +91,8 @@ def main():
     parser.add_argument('-e', '--evs', type=int, default=[0, 0, 0, 0, 0, 0], nargs=6)
     parser.add_argument('-g', '--gen', '--generation', type=int, default=8)
     parser.add_argument('-c', '--char', '--characteristic', type=characteristic)
+    parser.add_argument('-hp', '--hidden-power')
+    parser.add_argument('-v', '--verbose', action='store_true')
     args = parser.parse_args()
 
     stat_names = ['HP', 'Atk', 'Def', 'SpA', 'SpD', 'Spe']
@@ -111,6 +113,9 @@ def main():
             except KeyError:
                 pass
 
+    if args.verbose:
+        print(args.pokemon[0].title())
+
     # stage 1: filter by stats
     for base, given, ev, nature_mod, stat in zip(args.pokemon[1:], args.stats, args.evs, args.nature, stat_names):
         options[stat] = [iv for iv in range(32)
@@ -130,8 +135,24 @@ def main():
                 continue
             options[other_stat] = [iv for iv in options[other_stat] if iv <= cap]
 
-    for stat, opt in options.items():
-        print(f'{stat:>3s} {opt or "ERROR!"}')
+    # stage 3: filter by hidden power type (as long as their were no errors)
+    # to speed up computation, we observe that the HP type calculations only require the least signifant bit,
+    # so we'll reduce our options mod 2
+    if args.hidden_power and all(options.values()):
+        lsb = {k: set(a % 2 for a in v) for k, v in options.items()}
+
+        bit_options = {s: set() for s in stat_names}
+        for ivs in itertools.product(*lsb.values()):
+            if hidden_power(*ivs)[0] == args.hidden_power.capitalize():
+                for s, i in zip(stat_names, ivs):
+                    bit_options[s].add(i)
+
+        for k in stat_names:
+            options[k] = [iv for iv in options[k] if iv % 2 in bit_options[k]]
+
+    for base, (stat, opt) in zip(args.pokemon[1:], options.items()):
+        b = f' - Base: {base:>3}' if args.verbose else ''
+        print(f'{stat:>3s}{b} - IVs: {sorted(opt) or "ERROR!"}')
 
 
 if __name__ == '__main__':
