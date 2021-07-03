@@ -18,3 +18,5 @@ Arguments:
 - `-n/--nature`: the nature of the Pokémon. This must match exactly, but it is not case-sensitive.
 - `-c/--char/--characteristic`: the characteristic of the Pokémon (e.g., "Quick to flee". This must be enclosed in quotation marks since it includes multiple words.) This value is optional and merely provides additional filtering.
 - `-g/--generation`: The generation of the game in question (as an integer). If not given, this is assumed to be 8. This is used to account for base stat changes between generations.
+- `-hp/--hidden-power`: The known Hidden Power type. This is optional and only used for additional filtering.
+- `-v/--verbose`: When this flag is passed, the Pokémon's name, nature modifier (+Atk/-SpA), and base stats are also shown.
