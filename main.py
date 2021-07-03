@@ -114,7 +114,13 @@ def main():
                 pass
 
     if args.verbose:
-        print(args.pokemon[0].title())
+        print(args.pokemon[0].title(), end=', ')
+        if all(x == 1 for x in args.nature):
+            print('neutral nature')
+        else:
+            plus = args.nature.index(decimal.Decimal('1.1'))
+            minus = args.nature.index(decimal.Decimal('0.9'))
+            print(f'nature = +{stat_names[plus]}/-{stat_names[minus]}')
 
     # stage 1: filter by stats
     for base, given, ev, nature_mod, stat in zip(args.pokemon[1:], args.stats, args.evs, args.nature, stat_names):
