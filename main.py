@@ -11,20 +11,20 @@ HERE = pathlib.Path(__file__).parent
 
 
 # read static data from files
-with open(HERE / 'natures.csv') as f:
+with open(HERE / 'natures.csv', encoding='UTF-8') as f:
     reader = csv.reader(f)
     next(reader)
     NATURES = list(reader)
 
-with open(HERE / 'basestats.csv') as f:
+with open(HERE / 'basestats.csv', encoding='UTF-8') as f:
     reader = csv.reader(f)
     next(reader)
     BASE_STATS = list(reader)
 
-with open(HERE / 'statchanges.json') as f:
+with open(HERE / 'statchanges.json', encoding='UTF-8') as f:
     STAT_CHANGES = json.load(f)
 
-with open(HERE / 'characteristics.json') as f:
+with open(HERE / 'characteristics.json', encoding='UTF-8') as f:
     CHARACTERISTICS = json.load(f)
 
 HP_LOOKUP = [
