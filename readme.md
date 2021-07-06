@@ -25,7 +25,8 @@ Arguments:
 
 ## determine possible ranges for stats
 
-```$ python3 possible.py Vivillon 38
+```
+$ python3 possible.py Vivillon 38
  HP: 108-120
 Atk: 39-61
 Def: 38-59
