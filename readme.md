@@ -27,14 +27,15 @@ Arguments:
 
 ```
 $ python3 possible.py Vivillon 38
- HP: 108-120
-Atk: 39-61
-Def: 38-59
-SpA: 65-93
-SpD: 38-59
-Spe: 64-92
+     Min Neutral Max
+ HP: 108 108 120 120
+Atk:  39  44  56  61
+Def:  38  43  54  59
+SpA:  65  73  85  93
+SpD:  38  43  54  59
+Spe:  64  72  84  92
 ```
 
-This means that a level-38 Vivillon could have an attack stat between 39 (-Atk, 0IV, 0EV) and 61 (+Atk, 31IV, 0EV).
+This means that a level-38 Vivillon could have an attack stat between 39 (-Atk, 0IV, 0EV), 44 (neutral Atk nature, 0IV, 0EV), 56 (neutral Atk nature, 31IV, 0EV) and 61 (+Atk, 31IV, 0EV).
 
 You may also pass `-e`, in which case the maximum value will be accounting for a positive nature, 31IV, and 252EV).
