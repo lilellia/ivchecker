@@ -1,7 +1,9 @@
 # IVChecker
 
+
+## check IVs for a Pokémon
 ```
-$ python3 main.py wimpod --level 23 --stats 51 30 26 13 19 43 --nature Adamant --characteristic "Takes plenty of siestas"
+$ python3 checker.py wimpod --level 23 --stats 51 30 26 13 19 43 --nature Adamant --characteristic "Takes plenty of siestas"
  HP [31]
 Atk [30, 31]
 Def [12, 13, 14, 15]
@@ -20,3 +22,18 @@ Arguments:
 - `-g/--generation`: The generation of the game in question (as an integer). If not given, this is assumed to be 8. This is used to account for base stat changes between generations.
 - `-hp/--hidden-power`: The known Hidden Power type. This is optional and only used for additional filtering.
 - `-v/--verbose`: When this flag is passed, the Pokémon's name, nature modifier (+Atk/-SpA), and base stats are also shown.
+
+## determine possible ranges for stats
+
+```$ python3 possible.py Vivillon 38
+ HP: 108-120
+Atk: 39-61
+Def: 38-59
+SpA: 65-93
+SpD: 38-59
+Spe: 64-92
+```
+
+This means that a level-38 Vivillon could have an attack stat between 39 (-Atk, 0IV, 0EV) and 61 (+Atk, 31IV, 0EV).
+
+You may also pass `-e`, in which case the maximum value will be accounting for a positive nature, 31IV, and 252EV).
