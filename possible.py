@@ -35,15 +35,23 @@ def main():
     args.pokemon = [name] + utils.update_base_stats(name, stats, gen=args.gen)
 
     # calculate min/max stats
+    print(f'     Min Neutral Max')
     for base, stat_name in zip(args.pokemon[1:], 'HP Atk Def SpA SpD Spe'.split()):
         minimum = utils.calculate_stat(
             level=args.level, base=base, iv=0, ev=0, nature=0.9, hp=(stat_name=='HP')
         )
+        minneutral = utils.calculate_stat(
+            level=args.level, base=base, iv=0, ev=0, nature=1.0, hp=(stat_name=='HP')
+        )
+        maxneutral = utils.calculate_stat(
+            level=args.level, base=base, iv=31, ev=args.evs, nature=1.0, hp=(stat_name=='HP')
+        )
+
         maximum = utils.calculate_stat(
             level=args.level, base=base, iv=31, ev=args.evs, nature=1.1, hp=(stat_name=='HP')
         )
 
-        print(f'{stat_name:>3}: {minimum}-{maximum}')
+        print(f'{stat_name:>3}: {minimum:>3} {minneutral:>3} {maxneutral:>3} {maximum:>3}')
 
 if __name__ == '__main__':
     main()
