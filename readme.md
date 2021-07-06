@@ -41,7 +41,6 @@ $ python3 main.py wimpod -v check -l 23 -s 51 30 26 13 19 43 -n Adamant -c 'take
 ```
 
 Arguments:
-- `pokemon`: The Pokémon's name/form. Regional forms use "A-" and "G-" prefixes for Alolan- and Galarian forms, respectively (e.g., A-Vulpix, G-Meowth). Mega evolutions use an "M-" prefix (e.g., M-Mawile). Most other forms use the form name as a suffix (e.g., Groudon-Primal or Pumpkaboo-Small). For a complete list, see basestats.csv.
 - `-l/--level LEVEL`: the level of the Pokémon.
 - `-s/--stats`: the current stats of the Pokémon, given in the order (HP, Attack, Defense, Special Attack, Special Defense, Speed).
 - `-e/--evs`: the EVs for the Pokémon, given in the order (HP, Attack, Defense, Special Attack, Special Defense, Speed). This is optional, and if it is not given, all EVs are assumed to be zero.
