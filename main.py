@@ -156,9 +156,24 @@ def main():
         for k in stat_names:
             options[k] = [iv for iv in options[k] if iv % 2 in bit_options[k]]
 
+    # output possible IVs
     for base, (stat, opt) in zip(args.pokemon[1:], options.items()):
-        b = f' - Base: {base:>3}' if args.verbose else ''
-        print(f'{stat:>3s}{b} - IVs: {sorted(opt) or "ERROR!"}')
+        b = f' [Base: {base:>3}]' if args.verbose else ''   # handle base stats if verbose output is requested
+
+        # handle groupings (0 options -> error, 1 option -> itself, more than that -> range)
+        if len(opt) == 0:
+            ivs = 'ERROR'
+        elif len(opt) == 1:
+            ivs = opt[0]
+        else:
+            ivs = f'{min(opt)}-{max(opt)}'
+            if all(i % 2 == 0 for i in opt):
+                ivs += ' (even)'
+            elif all(i % 2 == 1 for i in opt):
+                ivs += ' (odd)'
+
+        # and actually do the printing
+        print(f'{stat:>3s}{b} - IVs: {ivs}')
 
 
 if __name__ == '__main__':
