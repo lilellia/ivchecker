@@ -2,10 +2,14 @@
 
 Call signature:
 ```bash
-$ python3 main.py POKEMON SUBCOMMAND (...other args)
+$ python3 main.py POKEMON [-g generation] [-v] SUBCOMMAND ...
 ```
 
 where `SUBCOMMAND` is one of `check`, `ranges`, and `base` and `POKEMON` is the Pokémon's name/form. Regional forms use "A-" and "G-" prefixes for Alolan- and Galarian forms, respectively (e.g., A-Vulpix, G-Meowth). Mega evolutions use an "M-" prefix (e.g., M-Mawile). Most other forms use the form name as a suffix (e.g., Groudon-Primal or Pumpkaboo-Small). For a complete list, see basestats.csv.
+
+The `-g/--gen` flag can be passed before the subcommand to change the game's generation. This is used to account for base stat changes between Pokémon. If this is not passed, generation 8 stats are used.
+
+The `-v/--verbose` flag can be passed before the subcommand to enable verbose output. Currently, this is only applied with the "check" subcommand.
 
 
 ## check IVs for a Pokémon
@@ -46,7 +50,6 @@ Arguments:
 - `-e/--evs`: the EVs for the Pokémon, given in the order (HP, Attack, Defense, Special Attack, Special Defense, Speed). This is optional, and if it is not given, all EVs are assumed to be zero.
 - `-n/--nature`: the nature of the Pokémon. This must match exactly, but it is not case-sensitive.
 - `-c/--char/--characteristic`: the characteristic of the Pokémon (e.g., "Quick to flee". This must be enclosed in quotation marks since it includes multiple words.) This value is optional and merely provides additional filtering.
-- `-g/--generation`: The generation of the game in question (as an integer). If not given, this is assumed to be 8. This is used to account for base stat changes between generations.
 - `-hp/--hidden-power`: The known Hidden Power type. This is optional and only used for additional filtering.
 - `-v/--verbose`: When this flag is passed, the nature modifier (+Atk/-SpA) and base stats are also shown. This flag must be passed BEFORE the "check" subcommand.
 
