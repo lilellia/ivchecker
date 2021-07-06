@@ -76,7 +76,7 @@ Arguments:
 ## show base stats
 
 ```bash
-$ python3.7 main.py a-vulpix base
+$ python3 main.py a-vulpix base
 ╒══════════╤══════╤═══════╤═══════╤═══════╤═══════╤═══════╕
 │          │   HP │   Atk │   Def │   SpA │   SpD │   Spe │
 ╞══════════╪══════╪═══════╪═══════╪═══════╪═══════╪═══════╡
