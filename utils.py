@@ -66,6 +66,12 @@ def calculate_stat(level: int, base: int, iv: int, ev: int, nature: float, *, hp
     return x + level + 10 if hp else int((x + 5) * nature)
 
 
+def type_(name: str):
+    if name.title() in HP_LOOKUP:
+        return name.title()
+    raise ValueError(f'Invalid Pokémon type: {name}')
+
+
 def hidden_power(hp: int, attack: int, defense: int, spattack: int, spdefense: int, speed: int) -> tuple:
     # determine type
     temp = (hp & 1) + ((attack & 1) << 1) + ((defense & 1) << 2) + ((speed & 1) << 3) + \
