@@ -1,7 +1,10 @@
 import csv
 import decimal
+import functools
+import fuzzywuzzy.process
 import json
 import pathlib
+import sys
 
 
 # path to this folder
@@ -30,6 +33,25 @@ HP_LOOKUP = [
         'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'
 ]
 
+
+def fuzzy(matches):
+    """ Provide a decorator that wraps functions to provide fuzzy text-matching warnings.
+    The function should raise ValueError when the fuzzy matching should take over.
+    """
+    def wrapper(func):
+        @functools.wraps(func)
+        def wrapped(text: str):
+            try:
+                return func(text)
+            except ValueError:
+                # in this case, the input was invalid, so we'll try to fuzzy match
+                (best, _), (second, _) = fuzzywuzzy.process.extract(text, matches, limit=2)
+                sys.exit(f'[{func.__name__}] Could not find {text!r}. Did you mean {best!r} or {second!r}?\n')
+        return wrapped
+    return wrapper
+
+
+@fuzzy(matches=tuple(n[1] for n in NATURES))
 def nature(name: str) -> tuple:
     """ Convert the name of a nature to stat modifiers (HP, ATK, DEF, SPA, SPD, SPE).
     
@@ -43,6 +65,8 @@ def nature(name: str) -> tuple:
 
     raise ValueError(f'Invalid nature: {name}')
 
+
+@fuzzy(matches=tuple(p[0] for p in BASE_STATS))
 def pokemon(name: str) -> tuple:
     """ Convert the name of a Pokeḿon to a tuple of its base stats. """
     for pkmn, *base_stats in BASE_STATS:
@@ -51,6 +75,8 @@ def pokemon(name: str) -> tuple:
 
     raise ValueError(f'Invalid Pokémon: {name}')
 
+
+@fuzzy(matches=tuple(CHARACTERISTICS.keys()))
 def characteristic(s: str) -> tuple:
     """ Convert a characteristic to a tuple of (stat, modulo) """
     try:
@@ -66,6 +92,7 @@ def calculate_stat(level: int, base: int, iv: int, ev: int, nature: float, *, hp
     return x + level + 10 if hp else int((x + 5) * nature)
 
 
+@fuzzy(matches=HP_LOOKUP)
 def type_(name: str):
     if name.title() in HP_LOOKUP:
         return name.title()

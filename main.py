@@ -6,6 +6,9 @@ import tabulate
 import utils
 
 
+__version__ = '1.1'
+
+
 def check(args: argparse.Namespace):
     stat_names = ('HP', 'Atk', 'Def', 'SpA', 'SpD', 'Spe')
     options = dict.fromkeys(stat_names)
@@ -145,6 +148,7 @@ def main():
     parser.add_argument('pokemon', type=utils.pokemon, help='the name of the Pokémon')
     parser.add_argument('-g', '--gen', '--generation', type=int, default=8, help="the game's generation number (default=8)")
     parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('--version', action='version', version=f'%(prog)s v{__version__}')
 
     subparsers = parser.add_subparsers(title='valid subcommands', required=True)
 
