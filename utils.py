@@ -11,10 +11,6 @@ import yaml
 # path to this folder
 HERE = Path(__file__).parent.resolve()
 
-# most recent Pokémon generation
-MIN_SUPPORTED_GENERATION = 3
-MOST_RECENT_GENERATION = 8
-
 # configuration object
 from configuration import Config
 config = Config.from_yaml(HERE / "config.yaml")
@@ -60,7 +56,7 @@ def get_basestats(pokemon: str, generation: int = MOST_RECENT_GENERATION) -> Six
         return modern_stats
 
     # Otherwise, there are changes we need to undo.
-    for g in range(MOST_RECENT_GENERATION, generation - 1, -1):
+    for g in range(config.generations.most_recent, generation - 1, -1):
         with suppress(KeyError):
             return changes[g]
 
