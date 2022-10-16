@@ -1,0 +1,13 @@
+ui:
+  active_theme: dark-theme
+
+generations:
+  most_recent: 8
+  min_supported: 3
+
+paths:
+  themes: themes/
+  basestats: data/basestats.csv
+  characteristics: data/characteristics.csv
+  natures: data/natures.csv
+  statchanges: data/statchanges.csv

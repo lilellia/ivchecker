@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-import json
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
 from typing import Protocol
+import yaml
 
 
 class BaseWidget:
@@ -233,10 +233,8 @@ class Theme:
     alt_accent: str
 
     @classmethod
-    def from_file(cls, json_path: Path) -> "Theme":
-        with open(json_path) as f:
-            data = json.load(f)
-
+    def from_yaml(cls, path: Path) -> "Theme":
+        data = yaml.safe_load(path.read_text())
         return cls(**data)
 
     def _get_proxy(self, *, name: str = "lil") -> ttk.Style:

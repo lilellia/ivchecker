@@ -1,10 +1,9 @@
 from argparse import Namespace
-from dataclasses import dataclass
 from functools import partial
 import itertools
-import json
 from pathlib import Path
 
+from configuration import Config
 from gui import Button, Dropdown, EditableWidget, Frame, Label, Textbox, TabbedDisplay, Theme, Window
 import utils
 
@@ -15,23 +14,11 @@ HERE = Path(__file__).parent
 
 STAT_NAMES = ("HP", "Atk", "Def", "SpA", "SpD", "Spe")
 
-@dataclass
-class Config:
-    active_theme: str
-
-    @classmethod
-    def from_file(cls, json_path: Path) -> "Config":
-        with open(json_path) as f:
-            data = json.load(f)
-
-        return cls(**data)
-
-
 def check(args: Namespace):
     options: dict[str, list[int]] = {}
 
     # step 1: get the Pokémon's base stats
-    basestats = utils.get_basestats(pokemon=args.pokemon, gen=args.generation)
+    basestats = utils.get_basestats(pokemon=args.pokemon, generation=args.generation)
     
     # step 2: filter possible IVs by stats
     nature = utils.get_nature(args.nature)
@@ -60,7 +47,7 @@ def check(args: Namespace):
         bit_options = {s: set() for s in STAT_NAMES}
     
         for ivs in itertools.product(*lsb.values()):
-            if utils.calc_hp_type(*ivs).name.lower() == args.hidden_power_type.lower():
+            if utils.get_hp_type(*ivs).name.lower() == args.hidden_power_type.lower():
                 # we have a match, so add these IVs to the set
                 for s, i in zip(STAT_NAMES, ivs):
                     bit_options[s].add(i)
@@ -94,7 +81,7 @@ def check(args: Namespace):
 
 
 def get_ranges(args: Namespace):
-    basestats = utils.get_basestats(pokemon=args.pokemon, gen=args.generation)
+    basestats = utils.get_basestats(pokemon=args.pokemon, generation=args.generation)
 
     output: dict[str, tuple[str, str]] = {}
 
@@ -119,7 +106,7 @@ def get_ranges(args: Namespace):
 
 
 def show_base_stats(args: Namespace):
-    basestats = utils.get_basestats(pokemon=args.pokemon, gen=args.generation)
+    basestats = utils.get_basestats(pokemon=args.pokemon, generation=args.generation)
 
     # output back to UI
     for stat_name, base in zip(STAT_NAMES, basestats):
@@ -275,14 +262,15 @@ def initialize_basestat_tab(frame: Frame) -> None:
 
 
 def main():
-    config = Config.from_file(HERE / "config.json")
+    config = Config.from_yaml(HERE / "config.yaml")
 
     window = Window(size=(730, 350), title=f"Pokémon IV Checker v{__version__}")
     
     # Activate the GUI color theme.
     # This must be done after the root window is created.
-    theme = Theme.from_file(HERE / "themes" / f"{config.active_theme}.json")
-    theme.use()
+    Theme.from_yaml(
+        HERE / config.paths.path_to_theme(config.ui.active_theme)
+    ).use()
 
     # Create the tab display and its tabs.
     tabs = TabbedDisplay(master=window)
