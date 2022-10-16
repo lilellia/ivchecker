@@ -41,11 +41,11 @@ def _get_stat_changes(pokemon: str) -> dict[int, SixInts]:
     return {gen: tuple(stats) for _, _, gen, *stats in filtered.values}
 
 
-def get_basestats(pokemon: str, generation: int = MOST_RECENT_GENERATION) -> SixInts:
+def get_basestats(pokemon: str, generation: int = config.generations.most_recent) -> SixInts:
     """ Return the base stats for the given Pokemon in the given generation. """
     modern_stats = _get_modern_basestats(pokemon)
 
-    if generation == MOST_RECENT_GENERATION:
+    if generation == config.generations.most_recent:
         # We're good to just return these stats.
         return modern_stats
 
