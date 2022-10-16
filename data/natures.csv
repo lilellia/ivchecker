@@ -1,0 +1,26 @@
+Name,JP Name,HP,Atk,Def,SpA,SpD,Spe,Favorite Flavor,Disliked Flavor
+Hardy,がんばりや,1.0,1,1,1,1,1,—,—
+Lonely,さみしがり,1.0,1.1,0.9,1,1,1,Spicy,Sour
+Brave,ゆうかん,1.0,1.1,1,1,1,0.9,Spicy,Sweet
+Adamant,いじっぱり,1.0,1.1,1,0.9,1,1,Spicy,Dry
+Naughty,やんちゃ,1.0,1.1,1,1,0.9,1,Spicy,Bitter
+Bold,ずぶとい,1.0,0.9,1.1,1,1,1,Sour,Spicy
+Docile,すなお,1.0,1,1,1,1,1,—,—
+Relaxed,のんき,1.0,1,1.1,1,1,0.9,Sour,Sweet
+Impish,わんぱく,1.0,1,1.1,0.9,1,1,Sour,Dry
+Lax,のうてんき,1.0,1,1.1,1,0.9,1,Sour,Bitter
+Timid,おくびょう,1.0,0.9,1,1,1,1.1,Sweet,Spicy
+Hasty,せっかち,1.0,1,0.9,1,1,1.1,Sweet,Sour
+Serious,まじめ,1.0,1,1,1,1,1,—,—
+Jolly,ようき,1.0,1,1,0.9,1,1.1,Sweet,Dry
+Naive,むじゃき,1.0,1,1,1,0.9,1.1,Sweet,Bitter
+Modest,ひかえめ,1.0,0.9,1,1.1,1,1,Dry,Spicy
+Mild,おっとり,1.0,1,0.9,1.1,1,1,Dry,Sour
+Quiet,れいせい,1.0,1,1,1.1,1,0.9,Dry,Sweet
+Bashful,てれや,1.0,1,1,1,1,1,—,—
+Rash,うっかりや,1.0,1,1,1.1,0.9,1,Dry,Bitter
+Calm,おだやか,1.0,0.9,1,1,1.1,1,Bitter,Spicy
+Gentle,おとなしい,1.0,1,0.9,1,1.1,1,Bitter,Sour
+Sassy,なまいき,1.0,1,1,1,1.1,0.9,Bitter,Sweet
+Careful,しんちょう,1.0,1,1,0.9,1.1,1,Bitter,Dry
+Quirky,きまぐれ,1.0,1,1,1,1,1,—,—
