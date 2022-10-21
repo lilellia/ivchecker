@@ -204,6 +204,7 @@ def main():
     config = Config.from_yaml(HERE / "config.yaml")
 
     window = Window(size=(730, 350), title=f"Pokémon IV Checker v{__version__}")
+    window.set_icon(config.paths.icon)
     
     # Activate the GUI color theme.
     # This must be done after the root window is created.

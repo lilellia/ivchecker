@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import ttk
 from typing import Protocol
@@ -68,6 +69,13 @@ class Window(BaseWidget):
     def title(self, val: str) -> None:
         """ Set the window title. """
         self._proxy.title(val)
+
+    def set_icon(self, ico: ImageTk.PhotoImage | Path | str) -> None:
+        if isinstance(ico, (Path, str)):
+            # load the image from file
+            ico = ImageTk.PhotoImage(Image.open(ico))
+
+        self._proxy.wm_iconphoto(True, ico)
 
     def run(self):
         self._proxy.mainloop()

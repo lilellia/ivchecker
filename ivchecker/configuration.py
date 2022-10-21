@@ -19,6 +19,7 @@ class PathConfig:
     characteristics: str
     natures: str
     statchanges: str
+    icon: str
 
     def path_to_theme(self, theme: str) -> Path:
         return Path(self.themes) / f"{theme}.yaml"

@@ -11,3 +11,4 @@ paths:
   characteristics: data/characteristics.csv
   natures: data/natures.csv
   statchanges: data/statchanges.csv
+  icon: assets/icon.png
