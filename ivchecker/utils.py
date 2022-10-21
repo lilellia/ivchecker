@@ -1,28 +1,42 @@
 from contextlib import suppress
 from enum import Enum
 # import fuzzywuzzy.process
-import json
 from pathlib import Path
 import pandas as pd
-import sys
-import yaml
 
+# path to the root folder
+ROOT = Path(__file__).parent.parent.resolve()
 
-# path to this folder
-HERE = Path(__file__).parent.resolve()
+# 
+STAT_NAMES = ("HP", "Atk", "Def", "SpA", "SpD", "Spe")
 
 # configuration object
-from configuration import Config
-config = Config.from_yaml(HERE / "config.yaml")
+from ivchecker.configuration import Config
+config = Config.from_yaml(ROOT / "config.yaml")
 
 # helper type alias
 SixInts = tuple[int, int, int, int, int, int]
 SixFloats = tuple[float, float, float, float, float, float]
 
+def format_ivs(ivs) -> str:
+    """ Format a range. [] -> "", [3] -> "3", [4, 5, 6] -> "4-6" """
+    if len(ivs) == 0:
+        return ""
+
+    if len(ivs) == 1:
+        return str(ivs[0])
+
+    res = f"{min(ivs)}-{max(ivs)}"
+    if all(iv & 1 == 0 for iv in ivs):
+        res += " (even)"
+    elif all(iv & 1 == 1 for iv in ivs):
+        res += " (odd)"
+
+    return res
 
 def _get_modern_basestats(pokemon: str) -> SixInts:
     """ Get the most recent basestats for the given Pokémon. """
-    data = pd.read_csv(HERE / config.paths.basestats)
+    data = pd.read_csv(ROOT / config.paths.basestats)
     filtered = data[data.Name.str.lower() == pokemon.lower()]
 
     if filtered.empty:
@@ -35,7 +49,7 @@ def _get_modern_basestats(pokemon: str) -> SixInts:
 
 def _get_stat_changes(pokemon: str) -> dict[int, SixInts]:
     """ Get all known stat changes for the given Pokémon, by generation. """
-    data = pd.read_csv(HERE / config.paths.statchanges)
+    data = pd.read_csv(ROOT / config.paths.statchanges)
     filtered = data[data.Pokemon.str.lower() == pokemon.lower()]
 
     return {gen: tuple(stats) for _, _, gen, *stats in filtered.values}
@@ -65,7 +79,7 @@ def get_basestats(pokemon: str, generation: int = config.generations.most_recent
 
 
 def get_nature(nature: str) -> SixFloats:
-    natures = pd.read_csv(HERE / config.paths.natures)
+    natures = pd.read_csv(ROOT / config.paths.natures)
     n = natures[natures.Name.str.lower() == nature.lower()]
 
     if n.empty:
@@ -79,18 +93,18 @@ def get_nature(nature: str) -> SixFloats:
 
 def get_all_natures() -> tuple[str]:
     """ Return the names of all natures. """
-    natures = pd.read_csv(HERE / config.paths.natures)
+    natures = pd.read_csv(ROOT / config.paths.natures)
     return tuple(sorted(natures.Name))
 
 
 def get_characteristic(characteristic: str) -> tuple[str, int]:
-    data = pd.read_csv(HERE / config.paths.characteristics)
+    data = pd.read_csv(ROOT / config.paths.characteristics)
     (_, high_stat, modulo), *_ = data.loc[data.Characteristic.str.lower() == characteristic.lower()].values
     return high_stat, modulo
 
 def get_all_characteristics() -> tuple[str]:
     """ Return the names of all characteristics. """
-    data = pd.read_csv(HERE / config.paths.characteristics)
+    data = pd.read_csv(ROOT / config.paths.characteristics)
 
     return tuple(sorted(data.Characteristic))
 
@@ -125,7 +139,7 @@ def get_hp_type(*ivs: int) -> HiddenPowerType:
     
     # The Hidden Power algorithm uses the IVs in a different order:
     # HP, Atk, Def, Spe, SpA, SpD
-    ivs = ivs[:3], ivs[5], ivs[3:5]
+    ivs = [*ivs[:3], ivs[5], *ivs[3:5]]
 
     n = sum((iv & 1) << i for i, iv in enumerate(ivs))
     return HiddenPowerType(n * 15 // 63)

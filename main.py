@@ -2,10 +2,11 @@ from argparse import Namespace
 from functools import partial
 import itertools
 from pathlib import Path
+from ivchecker.app import check_ivs
 
-from configuration import Config
-from gui import Button, Dropdown, EditableWidget, Frame, Label, Textbox, TabbedDisplay, Theme, Window
-import utils
+from ivchecker.configuration import Config
+from ivchecker.gui import Button, Dropdown, EditableWidget, Frame, Label, Textbox, TabbedDisplay, Theme, Window
+import ivchecker.utils as utils
 
 __version__ = '2.0β'
 
@@ -13,72 +14,6 @@ __version__ = '2.0β'
 HERE = Path(__file__).parent
 
 STAT_NAMES = ("HP", "Atk", "Def", "SpA", "SpD", "Spe")
-
-def check(args: Namespace):
-    options: dict[str, list[int]] = {}
-
-    # step 1: get the Pokémon's base stats
-    basestats = utils.get_basestats(pokemon=args.pokemon, generation=args.generation)
-    
-    # step 2: filter possible IVs by stats
-    nature = utils.get_nature(args.nature)
-    for base, actual, ev, nature_mod, stat_name in zip(basestats, args.stats, args.evs, nature, STAT_NAMES):
-        options[stat_name] = [
-            iv for iv in range(32)
-            if actual == utils.calculate_stat(args.level, base, iv, ev, nature_mod, hp=(stat_name=="HP"))
-        ]
-
-    # step 2: filter by characteristic (as long as there were no errors)
-    if args.characteristic and all(options.values()):
-        # use the modulo result to filter the corresponding stat
-        char_stat, residue = utils.get_characteristic(args.characteristic)
-        options[char_stat] = [iv for iv in options[char_stat] if iv % 5 == residue]
-
-        # then we also know that no other IV can exceed this one
-        cap = max(options[char_stat])
-        for stat_name in STAT_NAMES:
-            options[stat_name] = [iv for iv in options[stat_name] if iv <= cap]
-
-    # step 3: filter by hidden power type (as long as there were no errors)
-    # To speed up calculation, we observe that the HP type calculations only require the least significant bit,
-    # so we'll do all our initial filtering in Z/2.
-    if args.hidden_power_type and all(options.values()):
-        lsb = {stat_name: set(a % 2 for a in poss) for stat_name, poss in options.items()}
-        bit_options = {s: set() for s in STAT_NAMES}
-    
-        for ivs in itertools.product(*lsb.values()):
-            if utils.get_hp_type(*ivs).name.lower() == args.hidden_power_type.lower():
-                # we have a match, so add these IVs to the set
-                for s, i in zip(STAT_NAMES, ivs):
-                    bit_options[s].add(i)
-
-        # with the bit matches resolved, we just need to filter the actual IV possibilities
-        for stat_name in STAT_NAMES:
-            options[stat_name] = [iv for iv in options[stat_name] if iv % 2 in bit_options[stat_name]]
-
-    # with filtering done, we can output our results
-    output: list[str] = []
-    for stat_name, ivs in options.items():
-        # handle groupings (0 options → error, 1 option → itself, 2+ options → range)
-        if len(ivs) == 0:
-            output.append("ERROR")
-        elif len(ivs) == 1:
-            output.append(ivs[0])
-        else:
-            s = f'{min(ivs)}-{max(ivs)}'
-
-            # this additional parity comment is only applicable when hidden power testing as well
-            if all(i % 2 == 0 for i in ivs):
-                s += ' (even)'
-            elif all(i % 2 == 1 for i in ivs):
-                s += ' (odd)'
-            output.append(s)
-
-    # write output
-    for stat, ivs in zip(STAT_NAMES, output):
-        args.ui[f"ivs_{stat}"].contents = ivs
-    return output
-
 
 def get_ranges(args: Namespace):
     basestats = utils.get_basestats(pokemon=args.pokemon, generation=args.generation)
@@ -164,18 +99,22 @@ def initialize_check_tab(frame: Frame) -> None:
         # read generation from dropdown, converting, e.g. "4・IV" -> 4
         gen: int = int(ui["generation"].contents.split("・")[0])
 
-        args = Namespace(
-            ui=ui,  # passed so that check() can output back to the ui
-            generation=gen,
+        actual_stats = (ui[f"stat_{stat}"].contents for stat in STAT_NAMES)
+        evs = (ui[f"evs_{stat}"].contents for stat in STAT_NAMES)
+
+        ivs = check_ivs(
             pokemon=ui["pokémon"].contents,
+            generation=gen,
             level=int(ui["level"].contents),
-            stats=[int(ui[f"stat_{stat}"].contents) for stat in STAT_NAMES],
-            evs=[int(ui[f"evs_{stat}"].contents) for stat in STAT_NAMES],
-            nature=ui["nature"].contents,
+            actual_stats=tuple(map(int, actual_stats)),
+            evs=tuple(map(int, evs)),
+            nature_name=ui["nature"].contents,
             characteristic=ui["characteristic"].contents,
             hidden_power_type=ui["hidden-power-type"].contents
         )
-        check(args)
+
+        for stat, iv in zip(STAT_NAMES, ivs):
+            ui[f"ivs_{stat}"].contents = utils.format_ivs(iv)
 
     Button(master=frame, text="Calculate IVs", callback=check_button_callback).grid(9, 1, columnspan=6, opad=(0, 20))
 
