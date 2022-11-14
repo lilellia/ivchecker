@@ -1,24 +1,27 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import ttk
-from typing import Protocol
+from typing import Any, Protocol
 import yaml
 
 
 class BaseWidget:
     wrapped_class = None
 
-    def __init__(self, master, *args, **kwargs):
+    def __init__(self, master: BaseWidget | None, *args: Any, **kwargs: Any):
         self.master = master
 
         if self.wrapped_class == tk.Tk:
             self._proxy = tk.Tk()
         else:
-            self._proxy = self.wrapped_class(self.master._proxy, *args, **kwargs)
+            self._proxy = self.wrapped_class(
+                self.master._proxy, *args, **kwargs)
 
-    def config(self, **options):
+    def config(self, **options: Any):
         self._proxy.config(**options)
         return self
 
@@ -26,7 +29,7 @@ class BaseWidget:
 class Window(BaseWidget):
     wrapped_class = tk.Tk
 
-    def __init__(self, size: tuple[int, int], title: str, **kwargs):
+    def __init__(self, size: tuple[int, int], title: str, **kwargs: Any):
         super().__init__(master=None, **kwargs)
         self.size = size
         self.title = title
@@ -40,6 +43,7 @@ class Window(BaseWidget):
     def height(self) -> int:
         """ Return the height of the window. """
         return self._proxy.winfo_height()
+
     @property
     def size(self) -> tuple[int, int]:
         """ Return the size of the window: (width, height). """
@@ -54,12 +58,12 @@ class Window(BaseWidget):
     def width(self, val: int) -> None:
         """ Set the width of the window. """
         self.size = val, self.height
-    
+
     @height.setter
     def height(self, val: int) -> None:
         """ Set the height of the window. """
         self.size = self.width, val
-    
+
     @property
     def title(self) -> str:
         """ Get the window title. """
@@ -70,7 +74,7 @@ class Window(BaseWidget):
         """ Set the window title. """
         self._proxy.title(val)
 
-    def set_icon(self, ico: ImageTk.PhotoImage | Path | str) -> None:
+    def set_icon(self, ico) -> None:
         if isinstance(ico, (Path, str)):
             # load the image from file
             ico = ImageTk.PhotoImage(Image.open(ico))
@@ -118,6 +122,7 @@ class ToggleWidget(BaseWidget):
         else:
             self.enable()
 
+
 class EditableWidget(Protocol):
     @property
     def contents(self) -> str:
@@ -148,6 +153,7 @@ class Label(PositionableWidget):
         """ Set the text contents of the label. """
         self.config(text=val)
 
+
 class Textbox(PositionableWidget, ToggleWidget):
     wrapped_class = tk.Entry
 
@@ -173,7 +179,7 @@ class Dropdown(PositionableWidget):
     def __init__(self, master: BaseWidget, options: tuple[str], **kwargs):
         self._var = tk.StringVar(master._proxy, options[0])
         super().__init__(master, textvariable=self._var, **kwargs)
-        
+
         self.options = tuple(options)
         self._proxy["values"] = self.options
         self._proxy["state"] = "readonly"
@@ -194,6 +200,10 @@ class Dropdown(PositionableWidget):
 class Frame(PositionableWidget):
     wrapped_class = ttk.Frame
 
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.form: dict[str, EditableWidget] = dict()
+
 
 class TabbedDisplay(PositionableWidget):
     wrapped_class = ttk.Notebook
@@ -201,7 +211,7 @@ class TabbedDisplay(PositionableWidget):
     def __init__(self, master, *args, **kwargs) -> None:
         super().__init__(master, *args, **kwargs)
         self.tabs = []
-    
+
     def add_tab(self, text: str) -> Frame:
         """ Add a tab to the display. """
         frame = Frame(master=self)
@@ -239,6 +249,7 @@ class Theme:
     text_color: str
     accent: str
     alt_accent: str
+    stat_colors: dict[str, str]
 
     @classmethod
     def from_yaml(cls, path: Path) -> "Theme":

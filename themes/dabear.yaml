@@ -3,9 +3,9 @@ background: >-
 text_color: >-
   #e8e8e8
 accent: >-
-  #a855d9
+  #b26f37
 alt_accent: >-
-  #cb88f2
+  #b26f37
 
 stat_colors:
   Atk: >-
