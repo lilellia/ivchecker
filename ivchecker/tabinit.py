@@ -1,3 +1,7 @@
+from pathlib import Path
+import re
+
+from ivchecker.configuration import Config
 from ivchecker.gui import (
     error,
     Button,
@@ -12,12 +16,11 @@ from ivchecker.runners import check_ivs, get_ranges
 from ivchecker.utils import (
     STAT_NAMES,
     SixInts,
+    Nature,
     format_ivs,
     fuzzy_match_pokemon,
     get_all_characteristics,
     get_basestats,
-    get_nature,
-    get_all_natures,
     HiddenPowerType,
 )
 
@@ -25,12 +28,11 @@ GENERATION_OPTIONS = ("9・IX", "8・VIII", "7・VII",
                       "6・VI", "5・V", "4・IV", "3・III")
 
 
-def initialize_check_tab(frame: Frame) -> None:
+def initialize_check_tab(frame: Frame, config: Config) -> None:
     form: dict[str, EditableWidget] = dict()
     frame.form = form
 
     Label(master=frame, text="Generation*", anchor="e").grid(0, 0, opad=(5, 0))
-    generation_options = GENERATION_OPTIONS
     frame.form["generation"] = Dropdown(master=frame, options=GENERATION_OPTIONS).grid(
         0, 1, columnspan=2
     )
@@ -58,7 +60,8 @@ def initialize_check_tab(frame: Frame) -> None:
     Label(master=frame, text="Nature*", anchor="center").grid(
         6, 1, columnspan=2, opad=(0, 5)
     )
-    natures = ("",) + get_all_natures()
+
+    natures = ("",) + tuple(sorted(map(str, Nature.get_all())))
     frame.form["nature"] = Dropdown(master=frame, options=natures).grid(
         7, 1, columnspan=2
     )
@@ -120,6 +123,13 @@ def initialize_check_tab(frame: Frame) -> None:
             error(f"Invalid value for level: {ui['level'].contents!r}")
             return
 
+        # read nature from textbox, converting, e.g., "Adamant (+Atk/-SpA)"
+        # to just "Adamant"
+        match = re.fullmatch(r"(\w+) \(+\w\w\w/-\w\w\w\)",
+                             ui["nature"].contents)
+        assert match is not None
+        nature_name = match.group(1)
+
         try:
             ivs = check_ivs(
                 pokemon=ui["pokémon"].contents,
@@ -127,7 +137,7 @@ def initialize_check_tab(frame: Frame) -> None:
                 level=level,
                 actual_stats=tuple(actual_stats),
                 evs=tuple(evs),
-                nature_name=ui["nature"].contents,
+                nature_name=nature_name,
                 characteristic=ui["characteristic"].contents,
                 hidden_power_type=ui["hidden-power-type"].contents,
             )
@@ -143,7 +153,7 @@ def initialize_check_tab(frame: Frame) -> None:
     )
 
 
-def initialize_ranges_tab(frame: Frame) -> None:
+def initialize_ranges_tab(frame: Frame, config: Config) -> None:
     frame.form: dict[str, EditableWidget] = dict()
 
     Label(master=frame, text="Generation*",
@@ -207,7 +217,7 @@ def initialize_ranges_tab(frame: Frame) -> None:
         .grid(2, 0, columnspan=3, opad=(5, 20))
 
 
-def initialize_basestat_tab(frame: Frame) -> None:
+def initialize_basestat_tab(frame: Frame, config: Config) -> None:
     Label(master=frame, text="Generation*",
           anchor="center").grid(0, 0, opad=(5, 5))
     frame.form["generation"] = Dropdown(master=frame, options=GENERATION_OPTIONS) \
@@ -257,11 +267,13 @@ def initialize_basestat_tab(frame: Frame) -> None:
     )
 
 
-def initialize_info_tab(frame: Frame, theme: Theme) -> None:
-    natures = {name: get_nature(name) for name in get_all_natures()}
+def initialize_info_tab(frame: Frame, config: Config) -> None:
+    theme_path = Path(__file__).parent.parent / \
+        config.paths.path_to_theme(config.ui.active_theme)
+    theme = Theme.from_yaml(theme_path)
 
     # set up headers
-    Label(frame, text="(±10%)", anchor="c", foreground="#606060") \
+    Label(frame, text="(±10%)", anchor="c", foreground=theme.dim_color) \
         .grid(row=0, column=0)
 
     for i, stat in enumerate(STAT_NAMES[1:], start=1):
@@ -270,32 +282,13 @@ def initialize_info_tab(frame: Frame, theme: Theme) -> None:
         Label(frame, text=f"{stat}↓", **cfg) \
             .grid(row=0, column=i, ipad=(0, 7), opad=(0, 5))
         Label(frame, text=f"{stat}↑", **cfg) \
-            .grid(row=i, column=0, ipad=(10, 0), opad=(5, 0))
+            .grid(row=i, column=0, ipad=(10, 5), opad=(5, 0))
 
-    # get all the "interesting" natures
-    for row, _ in enumerate(STAT_NAMES[1:], start=1):
-        for col, _ in enumerate(STAT_NAMES[1:], start=1):
-            if row == col:
-                Label(frame, text="—", anchor="c").grid(row=row, column=col)
-                continue
-
-            targets = [
-                name
-                for name, modifiers in natures.items()
-                if modifiers[row] == 1.1 and modifiers[col] == 0.9
-            ]
-            Label(frame, text="・".join(targets), anchor="c").grid(
-                row=row, column=col, ipad=(10, 0)
-            )
-
-    # get the neutral natures
-    neutral_col = len(STAT_NAMES)
-    Label(frame, text="Neutral Natures", anchor="c").grid(
-        row=0, column=neutral_col, opad=(12, 0)
-    )
-    neutrals = [name for name, modifiers in natures.items() if set(modifiers) == {
-        1.0}]
-    for i, neutral in enumerate(neutrals, start=1):
-        Label(frame, text=neutral, anchor="c").grid(
-            row=i, column=neutral_col, opad=(12, 0)
-        )
+    natures = tuple(Nature.get_all())
+    for row, raised in enumerate(STAT_NAMES[1:], start=1):
+        for col, lowered in enumerate(STAT_NAMES[1:], start=1):
+            fg = theme.dim_color if raised == lowered else theme.text_color
+            for nature in natures:
+                if nature.raised == raised and nature.lowered == lowered:
+                    Label(frame, text=nature.name.title(),
+                          anchor="c", foreground=fg).grid(row=row, column=col, ipad=(10, 0))

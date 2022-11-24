@@ -1,8 +1,7 @@
 from functools import partial
 import itertools
-from pathlib import Path
 
-from .utils import STAT_NAMES, calculate_stat, get_basestats, get_characteristic, get_hp_type, get_nature, SixInts
+from .utils import NATURE_MODIFIER, STAT_NAMES, Nature, calculate_stat, get_basestats, get_characteristic, get_hp_type, SixInts
 
 
 def check_ivs(
@@ -22,12 +21,12 @@ def check_ivs(
     basestats = get_basestats(pokemon=pokemon, generation=generation)
 
     # 2: Filter by actual stats
-    nature = get_nature(nature_name)
-    for base, actual, ev, nature_mod, stat in zip(basestats, actual_stats, evs, nature, STAT_NAMES):
+    nature = Nature.from_name(nature_name)
+    for base, actual, ev, stat in zip(basestats, actual_stats, evs, STAT_NAMES):
         is_hp = (stat == "HP")
         options[stat] = [
             iv for iv in range(32)
-            if actual == calculate_stat(level, base, iv, ev, nature_mod, hp=is_hp)
+            if actual == calculate_stat(level, base, iv, ev, nature % stat, hp=is_hp)
         ]
 
     # 3: Filter by characteristic
@@ -75,9 +74,11 @@ def get_ranges(pokemon: str, generation: int, level: int) -> tuple[tuple[str, st
         is_hp = (stat_name == "HP")
         f = partial(calculate_stat, level=level, base=base, hp=is_hp)
 
-        minimum = f(iv=0, ev=0, nature=(1 if is_hp else 0.9))
-        maximum_0 = f(iv=31, ev=0, nature=(1 if is_hp else 1.1))
-        maximum_252 = f(iv=31, ev=252, nature=(1 if is_hp else 1.1))
+        minimum = f(iv=0, ev=0, nature=(1 if is_hp else 1 - NATURE_MODIFIER))
+        maximum_0 = f(iv=31, ev=0, nature=(
+            1 if is_hp else 1 + NATURE_MODIFIER))
+        maximum_252 = f(iv=31, ev=252, nature=(
+            1 if is_hp else 1 + NATURE_MODIFIER))
 
         output[stat_name] = (str(minimum), f"{maximum_0} / {maximum_252}")
 

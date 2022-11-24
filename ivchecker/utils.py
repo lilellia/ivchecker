@@ -1,9 +1,15 @@
-from ivchecker.configuration import Config
+from __future__ import annotations
 from contextlib import suppress
+from dataclasses import dataclass
 from enum import Enum
 import fuzzywuzzy.process
+import itertools
+from math import isclose
 from pathlib import Path
 import pandas as pd
+from typing import Iterator
+
+from ivchecker.configuration import Config
 
 # path to the root folder
 ROOT = Path(__file__).parent.parent.resolve()
@@ -18,8 +24,15 @@ config = Config.from_yaml(ROOT / "config.yaml")
 SixInts = tuple[int, int, int, int, int, int]
 SixFloats = tuple[float, float, float, float, float, float]
 
+NATURE_MODIFIER = 0.1
+
+
+def flatten_one_level(nested):
+    return itertools.chain.from_iterable(nested)
+
 
 def fuzzy(target: str, options: list[str], limit: int) -> list[str]:
+    """Return the n closest values in the options."""
     matches = [option for option,
                _ in fuzzywuzzy.process.extract(target, options)]
     return matches[:limit]
@@ -100,23 +113,64 @@ def get_basestats(pokemon: str, generation: int = config.generations.most_recent
     return modern_stats
 
 
-def get_nature(nature: str) -> SixFloats:
-    natures = pd.read_csv(ROOT / config.paths.natures)
-    n = natures[natures.Name.str.lower() == nature.lower()]
+@dataclass
+class Nature:
+    name: str
+    raised: str
+    lowered: str
 
-    if n.empty:
-        # could not find the nature
-        raise ValueError(f"Could not find nature {nature!r}")
+    @classmethod
+    def from_name(cls, name: str) -> Nature:
+        df = pd.read_csv(ROOT / config.paths.natures)
+        found = df[df["Name"].str.lower() == name.lower()]
 
-    # n.values = [[name, jpname, hp, atk, def, spa, spd, spe, liked flavor, disliked flavor]]
-    _, _, *mods, _, _ = n.values[0]
-    return tuple(mods)
+        if found.empty:
+            # could not find the nature
+            raise ValueError(f"Could not find nature {name!r}")
 
+        # found.values = [[name, jp_name, raised_stat, lowered_stat]]
+        name, _, raised, lowered = flatten_one_level(found.values)
 
-def get_all_natures() -> tuple[str]:
-    """ Return the names of all natures. """
-    natures = pd.read_csv(ROOT / config.paths.natures)
-    return tuple(sorted(natures.Name))
+        return cls(name.title(), raised, lowered)
+
+    @classmethod
+    def get_all(cls) -> Iterator[Nature]:
+        df = pd.read_csv(ROOT / config.paths.natures)
+
+        for _, (name, _, raised, lowered) in df.iterrows():
+            yield cls(name, raised, lowered)
+
+    def __mod__(self, other) -> float:
+        """Return the modifier for this Nature on this stat."""
+        if not isinstance(other, str):
+            raise TypeError(
+                f"unsupported operand type(s) for %: {type(self)} and {type(other)}")
+
+        if other not in STAT_NAMES:
+            raise ValueError(
+                f"Nature % stat: stat must be one of {STAT_NAMES}")
+
+        modifier = 1.0
+        if self.raised == other:
+            modifier += NATURE_MODIFIER
+        if self.lowered == other:
+            modifier -= NATURE_MODIFIER
+
+        return modifier
+
+    @property
+    def modifiers(self) -> SixFloats:
+        return tuple(self % stat for stat in STAT_NAMES)
+
+    @property
+    def is_neutral(self) -> bool:
+        return (self.raised == self.lowered)
+
+    def __str__(self) -> str:
+        if self.is_neutral:
+            return f"{self.name.title()} (±)"
+
+        return f"{self.name.title()} (+{self.raised}/-{self.lowered})"
 
 
 def get_characteristic(characteristic: str) -> tuple[str, int]:

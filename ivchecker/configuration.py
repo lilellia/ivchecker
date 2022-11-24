@@ -1,23 +1,11 @@
 from dataclasses import dataclass
-from enum import Enum, auto
 from pathlib import Path
 import yaml
-
-
-class NeutralNatureSortMethod(Enum):
-    ALPHABETICAL = auto()
-    STATWISE = auto()
 
 
 @dataclass
 class UIConfig:
     active_theme: str
-    neutral_nature_sort: NeutralNatureSortMethod
-
-    def __post_init__(self):
-        if isinstance(self.neutral_nature_sort, str):
-            self.neutral_nature_sort = NeutralNatureSortMethod[self.neutral_nature_sort.upper(
-            )]
 
 
 @dataclass

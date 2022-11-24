@@ -6,7 +6,7 @@ from ivchecker.configuration import Config
 from ivchecker.gui import TabbedDisplay, Theme, Window
 from ivchecker.tabinit import initialize_basestat_tab, initialize_check_tab, initialize_ranges_tab, initialize_info_tab
 
-__version__ = '2.1.1'
+__version__ = '2.1.2'
 
 # path to this folder
 HERE = Path(__file__).parent
@@ -37,10 +37,10 @@ def main():
         "Check IVs", "Show Ranges", "Show Base Stats", "Info")
 
     # Initialize the tabs individually.
-    initialize_check_tab(check_tab)
-    initialize_ranges_tab(ranges_tab)
-    initialize_basestat_tab(basestat_tab)
-    initialize_info_tab(info_tab, theme=active_theme)
+    initialize_check_tab(check_tab, config)
+    initialize_ranges_tab(ranges_tab, config)
+    initialize_basestat_tab(basestat_tab, config)
+    initialize_info_tab(info_tab, config)
 
     # Actually run the application
     window.run()

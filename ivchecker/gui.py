@@ -186,7 +186,7 @@ class Textbox(PositionableWidget, ToggleWidget):
 class Dropdown(PositionableWidget):
     wrapped_class = ttk.Combobox
 
-    def __init__(self, master: BaseWidget, options: tuple[str], **kwargs):
+    def __init__(self, master: BaseWidget, options: tuple[str, ...], **kwargs):
         self._var = tk.StringVar(master._proxy, options[0])
         super().__init__(master, textvariable=self._var, **kwargs)
 
@@ -257,6 +257,7 @@ class Button(PositionableWidget, ToggleWidget):
 class Theme:
     background: str
     text_color: str
+    dim_color: str
     accent: str
     alt_accent: str
     stat_colors: dict[str, str]

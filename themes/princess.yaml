@@ -2,6 +2,8 @@ background: >-
   #313131
 text_color: >-
   #e8e8e8
+dim_color: >-
+  #606060
 accent: >-
   #a855d9
 alt_accent: >-
