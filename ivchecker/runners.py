@@ -1,7 +1,8 @@
 from functools import partial
 import itertools
 
-from .utils import NATURE_MODIFIER, STAT_NAMES, Nature, calculate_stat, get_basestats, get_characteristic, get_hp_type, SixInts
+from ivchecker.engine import Characteristic, HPType, Nature, Stat, calculate_stat, get_basestats
+from ivchecker.utils import SixInts
 
 
 def check_ivs(
@@ -11,34 +12,30 @@ def check_ivs(
     actual_stats: SixInts,
     nature_name: str,
     evs: SixInts,
-    characteristic: str,
+    characteristic: Characteristic | None,
     hidden_power_type: str
 ) -> tuple[list[int]]:
     """ Get the possible IVs for a Pokémon. """
-    options: dict[str, list[int]] = {}
+    options: dict[Stat, list[int]] = {}
 
     # 1: Get the Pokémon's base stats
     basestats = get_basestats(pokemon=pokemon, generation=generation)
 
     # 2: Filter by actual stats
     nature = Nature.from_name(nature_name)
-    for base, actual, ev, stat in zip(basestats, actual_stats, evs, STAT_NAMES):
-        is_hp = (stat == "HP")
-        options[stat] = [
-            iv for iv in range(32)
-            if actual == calculate_stat(level, base, iv, ev, nature % stat, hp=is_hp)
-        ]
+    for base, actual, ev, stat in zip(basestats, actual_stats, evs, Stat):
+        options[stat] = [iv for iv in range(32) if actual == calculate_stat(level, base, iv, ev, nature % stat, stat)]
 
     # 3: Filter by characteristic
     if all(options.values()) and characteristic:
-        highstat, residue = get_characteristic(characteristic)
-
         # The characteristic determines the residue mod 5
-        options[highstat] = [
-            iv for iv in options[highstat] if iv % 5 == residue]
+        options[characteristic.high_stat] = [
+            iv for iv in options[characteristic.high_stat]
+            if iv % 5 == characteristic.residue
+        ]
 
         # And we also know that no other IV can exceed this one.
-        cap = max(options[highstat])
+        cap = max(options[characteristic.high_stat])
         for stat, opts in options.items():
             options[stat] = [iv for iv in opts if iv <= cap]
 
@@ -48,12 +45,12 @@ def check_ivs(
     if all(options.values()) and hidden_power_type:
         lsb = {stat: set(x & 1 for x in opts)
                for stat, opts in options.items()}
-        bit_options: dict[str, set[int]] = {stat: set() for stat in STAT_NAMES}
+        bit_options: dict[Stat, set[int]] = {stat: set() for stat in Stat}
 
         for ivs in itertools.product(*lsb.values()):
-            if get_hp_type(*ivs).name.lower() == hidden_power_type.lower():
+            if HPType.get(*ivs).name.lower() == hidden_power_type.lower():
                 # we have a match, so add these IVs to the set
-                for stat, iv in zip(STAT_NAMES, ivs):
+                for stat, iv in zip(Stat, ivs):
                     bit_options[stat].add(iv)
 
         # With the bit matches resolved, we just need to filter the
@@ -62,24 +59,22 @@ def check_ivs(
             options[stat] = [iv for iv in opts if iv & 1 in bit_options[stat]]
 
     # Filtering done, so we just return the results.
-    return tuple(options[stat] for stat in STAT_NAMES)
+    return tuple(options[stat] for stat in Stat)
 
 
 def get_ranges(pokemon: str, generation: int, level: int) -> tuple[tuple[str, str]]:
     basestats = get_basestats(pokemon=pokemon, generation=generation)
 
-    output: dict[str, tuple[str, str]] = {}
+    output: dict[Stat, tuple[str, str]] = {}
 
-    for stat_name, base in zip(STAT_NAMES, basestats):
-        is_hp = (stat_name == "HP")
-        f = partial(calculate_stat, level=level, base=base, hp=is_hp)
+    for stat, base in zip(Stat, basestats):
+        f = partial(calculate_stat, level=level, base=base, stat=stat)
 
-        minimum = f(iv=0, ev=0, nature=(1 if is_hp else 1 - NATURE_MODIFIER))
-        maximum_0 = f(iv=31, ev=0, nature=(
-            1 if is_hp else 1 + NATURE_MODIFIER))
-        maximum_252 = f(iv=31, ev=252, nature=(
-            1 if is_hp else 1 + NATURE_MODIFIER))
+        min_nature, max_nature = (1, 1) if stat == Stat.HP else (0.9, 1.1)
+        minimum = f(iv=0, ev=0, nature=min_nature)
+        maximum_0 = f(iv=31, ev=0, nature=max_nature)
+        maximum_252 = f(iv=31, ev=252, nature=max_nature)
 
-        output[stat_name] = (str(minimum), f"{maximum_0} / {maximum_252}")
+        output[stat] = (str(minimum), f"{maximum_0} / {maximum_252}")
 
-    return tuple(output[stat] for stat in STAT_NAMES)
+    return tuple(output[stat] for stat in Stat)
