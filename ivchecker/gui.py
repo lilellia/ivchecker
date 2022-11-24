@@ -4,9 +4,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from PIL import Image, ImageTk
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox, ttk
 from typing import Any, Protocol
 import yaml
+
+
+def error(message=None, **options):
+    messagebox.showerror("Error", message, **options)
 
 
 class BaseWidget:
@@ -17,6 +21,8 @@ class BaseWidget:
 
         if self.wrapped_class == tk.Tk:
             self._proxy = tk.Tk()
+        elif master is None:
+            self._proxy = self.wrapped_class(*args, **kwargs)
         else:
             self._proxy = self.wrapped_class(
                 self.master._proxy, *args, **kwargs)
@@ -29,8 +35,8 @@ class BaseWidget:
 class Window(BaseWidget):
     wrapped_class = tk.Tk
 
-    def __init__(self, size: tuple[int, int], title: str, **kwargs: Any):
-        super().__init__(master=None, **kwargs)
+    def __init__(self, size: tuple[int, int], title: str, master=None, **kwargs: Any):
+        super().__init__(master=master, **kwargs)
         self.size = size
         self.title = title
 
@@ -74,15 +80,19 @@ class Window(BaseWidget):
         """ Set the window title. """
         self._proxy.title(val)
 
-    def set_icon(self, ico) -> None:
+    def set_icon(self, ico, include_children: bool = False) -> None:
         if isinstance(ico, (Path, str)):
             # load the image from file
             ico = ImageTk.PhotoImage(Image.open(ico))
 
-        self._proxy.wm_iconphoto(True, ico)
+        self._proxy.wm_iconphoto(include_children, ico)
 
     def run(self):
         self._proxy.mainloop()
+
+
+class TopWindow(Window):
+    wrapped_class = tk.Toplevel
 
 
 class PositionableWidget(BaseWidget):

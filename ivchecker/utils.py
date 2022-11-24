@@ -1,27 +1,34 @@
+from ivchecker.configuration import Config
 from contextlib import suppress
 from enum import Enum
-# import fuzzywuzzy.process
+import fuzzywuzzy.process
 from pathlib import Path
 import pandas as pd
 
 # path to the root folder
 ROOT = Path(__file__).parent.parent.resolve()
 
-# 
+#
 STAT_NAMES = ("HP", "Atk", "Def", "SpA", "SpD", "Spe")
 
 # configuration object
-from ivchecker.configuration import Config
 config = Config.from_yaml(ROOT / "config.yaml")
 
 # helper type alias
 SixInts = tuple[int, int, int, int, int, int]
 SixFloats = tuple[float, float, float, float, float, float]
 
+
+def fuzzy(target: str, options: list[str], limit: int) -> list[str]:
+    matches = [option for option,
+               _ in fuzzywuzzy.process.extract(target, options)]
+    return matches[:limit]
+
+
 def format_ivs(ivs) -> str:
     """ Format a range. [] -> "", [3] -> "3", [4, 5, 6] -> "4-6" """
     if len(ivs) == 0:
-        return ""
+        return "ERROR"
 
     if len(ivs) == 1:
         return str(ivs[0])
@@ -34,16 +41,31 @@ def format_ivs(ivs) -> str:
 
     return res
 
+
+def get_all_pokemon() -> list[str]:
+    data = pd.read_csv(ROOT / config.paths.basestats)
+    return data["Name"].tolist()
+
+
+def fuzzy_match_pokemon(pokemon: str, num: int = 2) -> tuple[str]:
+    options = get_all_pokemon()
+    matches = [p for p, _ in fuzzywuzzy.process.extract(pokemon, options)]
+    return tuple(str(p) for p in matches[:num])
+
+
 def _get_modern_basestats(pokemon: str) -> SixInts:
     """ Get the most recent basestats for the given Pokémon. """
     data = pd.read_csv(ROOT / config.paths.basestats)
-    filtered = data[data.Name.str.lower() == pokemon.lower()]
+    filtered = data[data["Name"].str.lower() == pokemon.lower()]
 
     if filtered.empty:
         # could not find the pokemon
-        raise ValueError(f"Could not find base stats for {pokemon!r}")
+        p, q = fuzzy_match_pokemon(pokemon, 2)
+        raise ValueError(
+            f"Could not find base stats for {pokemon!r}.\nDid you mean {p} or {q}?")
 
-    _, *stats = filtered.values[0]  # bs.values = [[name, HP, Atk, Def, SpA, SpD, Spe]]
+    # bs.values = [[name, HP, Atk, Def, SpA, SpD, Spe]]
+    _, *stats = filtered.values[0]
     return tuple(stats)
 
 
@@ -99,8 +121,11 @@ def get_all_natures() -> tuple[str]:
 
 def get_characteristic(characteristic: str) -> tuple[str, int]:
     data = pd.read_csv(ROOT / config.paths.characteristics)
-    (_, high_stat, modulo), *_ = data.loc[data.Characteristic.str.lower() == characteristic.lower()].values
+    (_, high_stat, modulo), * \
+        _ = data.loc[data.Characteristic.str.lower() ==
+                     characteristic.lower()].values
     return high_stat, modulo
+
 
 def get_all_characteristics() -> tuple[str]:
     """ Return the names of all characteristics. """
@@ -136,7 +161,7 @@ class HiddenPowerType(Enum):
 
 def get_hp_type(*ivs: int) -> HiddenPowerType:
     """ Calculate the Hidden Power type from the given IVs (HP, Atk, Def, SpA, SpD, Spe). """
-    
+
     # The Hidden Power algorithm uses the IVs in a different order:
     # HP, Atk, Def, Spe, SpA, SpD
     ivs = [*ivs[:3], ivs[5], *ivs[3:5]]

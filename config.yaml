@@ -1,8 +1,11 @@
 ui:
   active_theme: dabear
 
+  # should be one of "alphabetical" or "statwise"
+  neutral_nature_sort: alphabetical
+
 generations:
-  most_recent: 8
+  most_recent: 9
   min_supported: 3
 
 paths:
@@ -11,4 +14,6 @@ paths:
   characteristics: data/characteristics.csv
   natures: data/natures.csv
   statchanges: data/statchanges.csv
-  icon: assets/icon.png
+  icons:
+    main: assets/icon.png
+    warning: assets/warning.png

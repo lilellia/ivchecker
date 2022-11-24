@@ -82,12 +82,3 @@ def get_ranges(pokemon: str, generation: int, level: int) -> tuple[tuple[str, st
         output[stat_name] = (str(minimum), f"{maximum_0} / {maximum_252}")
 
     return tuple(output[stat] for stat in STAT_NAMES)
-
-
-def show_base_stats(args: Namespace):
-    basestats = utils.get_basestats(
-        pokemon=args.pokemon, generation=args.generation)
-
-    # output back to UI
-    for stat_name, base in zip(STAT_NAMES, basestats):
-        args.ui[f"base_{stat_name}"].contents = str(base)

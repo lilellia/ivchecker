@@ -1,22 +1,27 @@
 from pathlib import Path
+import sys
+import tkinter as tk
 
 from ivchecker.configuration import Config
 from ivchecker.gui import TabbedDisplay, Theme, Window
 from ivchecker.tabinit import initialize_basestat_tab, initialize_check_tab, initialize_ranges_tab, initialize_info_tab
-import ivchecker.utils as utils
 
-__version__ = '2.0β2'
+__version__ = '2.1.1'
 
 # path to this folder
 HERE = Path(__file__).parent
 
 
 def main():
+    if "--version" in sys.argv:
+        print(__version__)
+        return
+
     config = Config.from_yaml(HERE / "config.yaml")
 
-    window = Window(size=(730, 350),
+    window = Window(size=(730, 380),
                     title=f"Pokémon IV Checker v{__version__}")
-    window.set_icon(config.paths.icon)
+    window.set_icon(config.paths.icons.main)
 
     # Activate the GUI color theme.
     # This must be done after the root window is created.
