@@ -1,13 +1,8 @@
 from __future__ import annotations
-from contextlib import suppress
-from dataclasses import dataclass
-from enum import Enum
 import fuzzywuzzy.process
 import itertools
-from math import isclose
 from pathlib import Path
 import pandas as pd
-from typing import Iterator
 
 from ivchecker.configuration import Config
 

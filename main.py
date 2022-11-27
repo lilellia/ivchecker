@@ -6,7 +6,7 @@ from ivchecker.configuration import Config
 from ivchecker.gui import TabbedDisplay, Theme, Window
 from ivchecker.tabinit import initialize_basestat_tab, initialize_check_tab, initialize_ranges_tab, initialize_info_tab
 
-__version__ = '2.1.2'
+__version__ = '2.1.3'
 
 # path to this folder
 HERE = Path(__file__).parent

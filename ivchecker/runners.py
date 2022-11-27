@@ -35,6 +35,8 @@ def check_ivs(
         ]
 
         # And we also know that no other IV can exceed this one.
+        if not options:
+            raise ValueError(f"No possible IVs found. Check entered stats for errors.")
         cap = max(options[characteristic.high_stat])
         for stat, opts in options.items():
             options[stat] = [iv for iv in opts if iv <= cap]
