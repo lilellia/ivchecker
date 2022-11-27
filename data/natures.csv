@@ -1,0 +1,26 @@
+Name,JP Name,Raised,Lowered
+Hardy,がんばりや,Atk,Atk
+Lonely,さみしがり,Atk,Def
+Brave,ゆうかん,Atk,Spe
+Adamant,いじっぱり,Atk,SpA
+Naughty,やんちゃ,Atk,SpD
+Bold,ずぶとい,Def,Atk
+Docile,すなお,Def,Def
+Relaxed,のんき,Def,Spe
+Impish,わんぱく,Def,SpA
+Lax,のうてんき,Def,SpD
+Timid,おくびょう,Spe,Atk
+Hasty,せっかち,Spe,Def
+Serious,まじめ,Spe,Spe
+Jolly,ようき,Spe,SpA
+Naive,むじゃき,Spe,SpD
+Modest,ひかえめ,SpA,Atk
+Mild,おっとり,SpA,Def
+Quiet,れいせい,SpA,Spe
+Bashful,てれや,SpA,SpA
+Rash,うっかりや,SpA,SpD
+Calm,おだやか,SpD,Atk
+Gentle,おとなしい,SpD,Def
+Sassy,なまいき,SpD,Spe
+Careful,しんちょう,SpD,SpA
+Quirky,きまぐれ,SpD,SpD

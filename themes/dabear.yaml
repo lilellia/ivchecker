@@ -1,0 +1,22 @@
+background: >-
+  #313131
+text_color: >-
+  #e8e8e8
+dim_color: >-
+  #606060
+accent: >-
+  #b26f37
+alt_accent: >-
+  #b26f37
+
+stat_colors:
+  Atk: >-
+    #f5ac78
+  Def: >-
+    #fae078
+  SpA: >-
+    #9db7f5
+  SpD: >-
+    #a7db8d
+  Spe: >-
+    #fa92b2

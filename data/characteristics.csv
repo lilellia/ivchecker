@@ -1,0 +1,33 @@
+Characteristic,High Stat,Modulo
+Loves to eat,HP,0
+Takes plenty of siestas,HP,1
+Often dozes off,HP,1
+Nods off a lot,HP,2
+Often scatters things,HP,2
+Scatters things often,HP,3
+Likes to relax,HP,4
+Proud of its power,Atk,0
+Likes to thrash about,Atk,1
+A little quick tempered,Atk,2
+Likes to fight,Atk,3
+Quick tempered,Atk,4
+Sturdy body,Def,0
+Capable of taking hits,Def,1
+Highly persistent,Def,2
+Good endurance,Def,3
+Good perserverance,Def,4
+Highly curious,SpA,0
+Mischievous,SpA,1
+Thoroughly cunning,SpA,2
+Often lost in thought,SpA,3
+Very finicky,SpA,4
+Strong willed,SpD,0
+Somewhat vain,SpD,1
+Strongly defiant,SpD,2
+Hates to lose,SpD,3
+Somewhat stubborn,SpD,4
+Likes to run,Spe,0
+Alert to sounds,Spe,1
+Impetous and silly,Spe,2
+Somewhat of a clown,Spe,3
+Quick to flee,Spe,4
