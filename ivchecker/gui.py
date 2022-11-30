@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import count, takewhile
 from pathlib import Path
 from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import messagebox, ttk
-from typing import Any, Protocol
+from typing import Any, Generic, Protocol, TypeVar
 import yaml
 
+_T = TypeVar("_T")
 
 def error(message=None, **options):
     messagebox.showerror("Error", message, **options)
@@ -133,17 +135,20 @@ class ToggleWidget(BaseWidget):
             self.enable()
 
 
-class EditableWidget(Protocol):
+class EditableWidget(Generic[_T], Protocol):
     @property
-    def contents(self) -> str:
+    def value(self) -> _T:
         """ Return the contents of the widget. """
+        ...
 
-    @contents.setter
-    def contents(self, val: str) -> None:
+    @value.setter
+    def value(self, val: _T) -> None:
         """ Set the contents of the widget. """
+        ...
 
     def clear(self) -> None:
         """ Clear the contents of the widget. """
+        ...
 
 
 class Label(PositionableWidget):
@@ -166,14 +171,17 @@ class Label(PositionableWidget):
 
 class Textbox(PositionableWidget, ToggleWidget):
     wrapped_class = tk.Entry
+    
+    def __init__(self, master, *args, **kwargs) -> None:
+        super().__init__(master, *args, **kwargs)
 
     @property
-    def contents(self) -> str:
+    def value(self) -> str:
         """ Return the text contents of the textbox. """
         return self._proxy.get()
 
-    @contents.setter
-    def contents(self, val: str) -> None:
+    @value.setter
+    def value(self, val: str) -> None:
         """ Set the text contents of the texbox. """
         self.clear()
         self._proxy.insert(0, val)
@@ -195,16 +203,16 @@ class Dropdown(PositionableWidget):
         self._proxy["state"] = "readonly"
 
     @property
-    def contents(self) -> str:
+    def value(self) -> str:
         return self._var.get()
 
-    @contents.setter
-    def contents(self, val: str) -> None:
+    @value.setter
+    def value(self, val: str) -> None:
         """ Set the text contents of the dropdown. """
         self._var.set(val)
 
     def clear(self) -> None:
-        self.contents = ""
+        self.value = ""
 
 
 class Frame(PositionableWidget):
@@ -251,79 +259,33 @@ class Button(PositionableWidget, ToggleWidget):
     def flash(self) -> None:
         """ Cause the button to flash several times between active/normal colors. """
         self._proxy.flash()
+        
 
+class Spinbox(PositionableWidget):
+    wrapped_class = ttk.Spinbox
+    
+    def __init__(self, master, min: float, max: float, step: float = 1.0, *args, default: float | None = None, wrap: bool=False, **kwargs):
+        self.min, self.max, self.step = min, max, step
+        
+        self._var = tk.StringVar()
+        values = tuple(takewhile(max.__ge__, count(min, step)))
+        
+        super().__init__(master, from_=min, to=max, textvariable=self._var, values=values, wrap=wrap, *args, **kwargs)
 
-@dataclass
-class Theme:
-    background: str
-    text_color: str
-    dim_color: str
-    accent: str
-    alt_accent: str
-    stat_colors: dict[str, str]
-
-    @classmethod
-    def from_yaml(cls, path: Path) -> "Theme":
-        data = yaml.safe_load(path.read_text())
-        return cls(**data)
-
-    def _get_proxy(self, *, name: str = "lil") -> ttk.Style:
-        style = ttk.Style()
-        style.theme_create(
-            name, parent="alt",
-            settings={
-                "TNotebook": {
-                    "configure": {
-                        "background": self.background,
-                        "tabmargins": (2, 5, 2, 0),
-                    }
-                },
-                "TNotebook.Tab": {
-                    "configure": {
-                        "padding": (5, 1),
-                        "background": self.background,
-                        "foreground": self.text_color
-                    },
-                    "map": {
-                        "background": [
-                            ("selected", self.accent),
-                        ],
-                        "expand": [("selected", (1, 1, 1, 0))]
-                    }
-                },
-                "TFrame": {
-                    "configure": {
-                        "background": self.background
-                    }
-                },
-                "TLabel": {
-                    "configure": {
-                        "background": self.background,
-                        "foreground": self.text_color
-                    }
-                },
-                "TButton": {
-                    "configure": {
-                        "background": self.alt_accent,
-                        "relief": "raised",
-                        "anchor": "center"
-                    },
-                    "map": {
-                        "background": [("active", self.accent)]
-                    }
-                },
-                "TCombobox": {
-                    "configure": {
-                        "fieldbackground": self.background,
-                        "background": self.background,
-                        "foreground": self.text_color,
-                        "selectforeground": self.text_color
-                    }
-                }
-            }
-        )
-        return style
-
-    def use(self, *, name: str = "lil") -> None:
-        """ Activate the theme. """
-        self._get_proxy().theme_use(name)
+        if default is not None:
+            self.value = default
+    
+    @property
+    def _raw_value(self) -> str:
+        return self._var.get()
+    
+    @property
+    def value(self) -> float:
+        return float(self._var.get())
+    
+    @value.setter
+    def value(self, val: float) -> None:
+        self._var.set(str(val))
+        
+    def clear(self) -> None:
+        self.value = self.min

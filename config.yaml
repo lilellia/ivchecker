@@ -1,16 +1,15 @@
 ui:
-  active_theme: princess
+  # relief should be one of
+  # flat, raised, sunken, groove, ridge
+  textbox_relief: flat
 
 generations:
   most_recent: 9
   min_supported: 3
 
 paths:
-  themes: themes/
   basestats: data/basestats.csv
   characteristics: data/characteristics.csv
   natures: data/natures.csv
   statchanges: data/statchanges.csv
-  icons:
-    main: assets/icon.png
-    warning: assets/warning.png
+  icon: assets/icon.png
