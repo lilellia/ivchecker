@@ -64,10 +64,10 @@ def check_ivs(
     return tuple(options[stat] for stat in Stat)
 
 
-def get_ranges(pokemon: str, generation: int, level: int) -> tuple[tuple[str, str]]:
+def get_ranges(pokemon: str, generation: int, level: int) -> tuple[tuple[int, int, int]]:
     basestats = get_basestats(pokemon=pokemon, generation=generation)
 
-    output: dict[Stat, tuple[str, str]] = {}
+    output: dict[Stat, tuple[int, int, int]] = {}
 
     for stat, base in zip(Stat, basestats):
         f = partial(calculate_stat, level=level, base=base, stat=stat)
@@ -77,6 +77,6 @@ def get_ranges(pokemon: str, generation: int, level: int) -> tuple[tuple[str, st
         maximum_0 = f(iv=31, ev=0, nature=max_nature)
         maximum_252 = f(iv=31, ev=252, nature=max_nature)
 
-        output[stat] = (str(minimum), f"{maximum_0} / {maximum_252}")
+        output[stat] = (minimum, maximum_0, maximum_252)
 
     return tuple(output[stat] for stat in Stat)

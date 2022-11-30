@@ -5,7 +5,7 @@ import yaml
 
 @dataclass
 class UIConfig:
-    active_theme: str
+    textbox_relief: str
 
 
 @dataclass
@@ -15,22 +15,12 @@ class GenerationConfig:
 
 
 @dataclass
-class IconConfig:
-    main: str
-    warning: str
-
-
-@dataclass
 class PathConfig:
-    themes: str
     basestats: str
     characteristics: str
     natures: str
     statchanges: str
-    icons: IconConfig
-
-    def path_to_theme(self, theme: str) -> Path:
-        return Path(self.themes) / f"{theme}.yaml"
+    icon: str
 
 
 @dataclass
@@ -45,11 +35,6 @@ class Config:
 
         ui = UIConfig(**raw["ui"])
         generations = GenerationConfig(**raw["generations"])
-
-        # parse the nested dict -> IconConfig
-        icons = IconConfig(**raw["paths"]["icons"])
-        raw["paths"]["icons"] = icons
-
         paths = PathConfig(**raw["paths"])
 
         return cls(ui=ui, generations=generations, paths=paths)
